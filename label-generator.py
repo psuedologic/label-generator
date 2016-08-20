@@ -2,10 +2,8 @@ from PIL import Image, ImageDraw, ImageFont
 import textwrap
 
 ''' TODO:
-Add text-wrapping
-Add centering code
 Add csv support / automated pdf production
-    
+   
 '''
 #Configuration Settings
 PIXELS_PER_INCH = 300
@@ -22,7 +20,7 @@ TEXT_MARGIN = 30
 IMAGE_BACKGROUND = "white"
 logo = Image.open("fair_logo.jpg")
 logo = logo.resize((369, 273), Image.LANCZOS) #328, 243
-FONT_PATH = "times.ttf"
+FONT_PATH = "..//resource//times.ttf"
 
 #Derived Settings
 IMAGE_SIZE = (int(PAPER_SIZE[0] * PIXELS_PER_INCH),
@@ -51,7 +49,7 @@ title_textbox = [(TEXT_MARGIN + X_MIN, TEXT_MARGIN + Y_MIN),
                  (CARD_SIZE[0] - TEXT_MARGIN + X_MIN, CARD_SIZE[1] - logo.size[1] - LOGO_MARGIN * 2 - TEXT_MARGIN + Y_MIN),
                  ()]
 title_textbox[2] = (title_textbox[1][0] - title_textbox[0][0], title_textbox[1][1] - title_textbox[0][1])
-name_textbox = [(logo.size[0] + LOGO_MARGIN * 2 + X_MIN, CARD_SIZE[1] - logo.size[1] - LOGO_MARGIN * 2 + TEXT_MARGIN + Y_MIN),
+name_textbox = [(logo.size[0] + LOGO_MARGIN * 3 + X_MIN, CARD_SIZE[1] - logo.size[1] - LOGO_MARGIN * 2 + TEXT_MARGIN + Y_MIN),
                 (CARD_SIZE[0] - TEXT_MARGIN * 2 + X_MIN, CARD_SIZE[1] - TEXT_MARGIN * 2 + Y_MIN),
                 ()]
 name_textbox[2] = (name_textbox[1][0] - name_textbox[0][0], name_textbox[1][1] - name_textbox[0][1])
@@ -86,16 +84,16 @@ draw.line([(((X_MIN + X_MAX) // 2), Y_MIN),
              fill="red", width=BORDER_WIDTH)
 
 #Draws the Horizontal Lines
-draw.line([(X_MIN, Y_MIN),
-           (X_MAX, Y_MIN)],
+draw.line([(X_MIN - BORDER_WIDTH // 2, Y_MIN),
+           (X_MAX + BORDER_WIDTH // 2, Y_MIN)],
            fill="blue", width=BORDER_WIDTH)
-draw.line([(X_MIN, Y_MAX),
-           (X_MAX, Y_MAX)],
+draw.line([(X_MIN - BORDER_WIDTH // 2, Y_MAX),
+           (X_MAX + BORDER_WIDTH // 2, Y_MAX)],
            fill="blue", width=BORDER_WIDTH)
 current_row = Y_MIN
 for row in range(ROWS):
     current_row += PIXELS_IN_ROW
-    draw.line([X_MIN, current_row, X_MAX, current_row],
+    draw.line([X_MIN - BORDER_WIDTH // 2, current_row, X_MAX + BORDER_WIDTH // 2, current_row],
                 fill="blue", width=BORDER_WIDTH)
 
 #Draws the Logo
@@ -107,26 +105,28 @@ blank_image = image.copy()
 
 current_data = [ #[Name, Title, Name_Modifier, Title Modifier]
     ["George Martin", "Painting of a Cat"], 
-    ["George Martin", "Painting of a Dog"],
+    ["George Martin", "2 Mandalas - Peppermints + Snails in the Garden"],
     ["George Martin", "Painting of a Train"],
     ["Perry the Platypus", "Bach is Nice"],
     ["Perry the Platypus", "Nicity"],
-    ["Perry the Platypus", "The French Explorer,\n Bachurat the Brave"],
+    ["Perry the Platypus", "The French Explorer, Bachurat the Brave"],
     ["San Jean Von Eisenvon", "123"],
-    ["San Jean Von Eisenvon", "456"],
+    ["San Jean Von Eisenvon the Second", "456"],
     ["San Jean Von Eisenvon", "789"],
     ["San Jean Von Eisenvon", "022"]]
 
-def text_format(text, text_box_size, font):
-    text_size = draw.multiline_textsize(text, font=font, spacing=6)
-    
+def text_format(text, width): #, font):
+    #text_size = draw.multiline_textsize(text, font=font, spacing=6)
+
+    centered_text = textwrap()
+    '''
     if text_size >= text_box_size:
         number_of_lines = 2
     else:
         number_of_lines = 1
+    '''
     
-    
-    text_center(text, text_box_size, font, number_of_lines)
+    #text_center(text, text_box_size, font, number_of_lines)
 
 def text_center(text, text_box_size, font, number_of_lines):
     text_size = draw.multiline_textsize(text, font=font, spacing=6)
@@ -144,21 +144,50 @@ def text_center(text, text_box_size, font, number_of_lines):
 
 def write_text(data_list):
     image = blank_image
+    pad = 100
     for i, coord in enumerate(cards_coordinates):
         current_coord = (coord[0] + TITLE_TRANSLATION[0], coord[1] + TITLE_TRANSLATION[1])
-        draw.multiline_text((current_coord), '"' + data_list[i][1] + '"', fill="black",
-                            font=font10, spacing=6, align="center" )
+        text = '"' + data_list[i][1] + '"'
+        text_wrapped = textwrap.wrap(text, width=22)
 
+        delta_h = 0
+        
+        for text in text_wrapped:
+            w, h = draw.textsize(text, font = font10)
+            
+            if len(text_wrapped) == 1:
+                delta_h += 50
+            
+            draw.text((current_coord[0] + ((title_textbox[2][0] - w) // 2), current_coord[1] + delta_h), text, fill="black", font=font8)
+            #draw.multiline_text((current_coord), '"' + data_list[i][1] + '"', fill="black",
+            #                    font=font10, spacing=6, align="center" )
+            delta_h += pad
+    
+        
         current_coord = (coord[0] + NAME_TRANSLATION[0], coord[1] + NAME_TRANSLATION[1])
+        text = data_list[i][0]
+        text_wrapped = textwrap.wrap(text, width=15)
+        
+        delta_h = 0
+        delta_h += (len(text_wrapped) - 3) * -50
+        
+        for text in text_wrapped:
+            w, h = draw.textsize(text, font = font8)
+
+            draw.text((current_coord[0] + ((name_textbox[2][0] - w) // 2), current_coord[1] + delta_h), text, fill="black", font=font8)
+            delta_h += pad       
+        '''
         draw.multiline_text((current_coord), data_list[i][0], fill="black",
-                            font=font8, spacing=6, align="center" )
+                            font=font8, spacing=6, align="center" )'''
 
 
 #TO REMOVE, Locates name and title textboxes
+'''        
 draw.line(title_textbox[0:2],
             fill="black", width=5)
 draw.line(name_textbox[0:2],
             fill="black", width=5)
+'''
 
 write_text(current_data)
 image.save("Test.png")
