@@ -1,5 +1,6 @@
 from PIL import Image, ImageDraw, ImageFont
 import textwrap
+import csv
 
 ''' TODO:
 Add csv support / automated pdf production
@@ -20,7 +21,9 @@ TEXT_MARGIN = 30
 IMAGE_BACKGROUND = "white"
 logo = Image.open("fair_logo.jpg")
 logo = logo.resize((369, 273), Image.LANCZOS) #328, 243
-FONT_PATH = "..//resource//times.ttf"
+RESOURCE_PATH = "..//resource//"
+FONT_PATH = RESOURCE_PATH + "times.ttf"
+DATA_PATH = RESOURCE_PATH + "fair-data.csv"
 
 #Derived Settings
 IMAGE_SIZE = (int(PAPER_SIZE[0] * PIXELS_PER_INCH),
@@ -29,10 +32,10 @@ MARGIN_SIZE = 1 * PIXELS_PER_INCH
 TOP_MARGIN = int(TOP_MARGIN * PIXELS_PER_INCH)
 SIDE_MARGIN = int(SIDE_MARGIN * PIXELS_PER_INCH)
 
-X_MIN = SIDE_MARGIN
-X_MAX = IMAGE_SIZE[0] - SIDE_MARGIN
-Y_MIN = TOP_MARGIN
-Y_MAX = IMAGE_SIZE[1] - TOP_MARGIN
+X_MIN = SIDE_MARGIN + (LOGO_MARGIN * 3 // 4) # added logo margin to calibrate to my printer
+X_MAX = IMAGE_SIZE[0] - SIDE_MARGIN - (LOGO_MARGIN * 3 // 4)
+Y_MIN = TOP_MARGIN + LOGO_MARGIN
+Y_MAX = IMAGE_SIZE[1] - TOP_MARGIN - LOGO_MARGIN
 
 PIXELS_IN_ROW = ((Y_MAX - Y_MIN) // ROWS)
 CARD_SIZE = (((X_MAX - X_MIN) // 2), PIXELS_IN_ROW)
@@ -103,7 +106,8 @@ for coord in cards_coordinates:
 
 blank_image = image.copy()
 
-current_data = [ #[Name, Title, Name_Modifier, Title Modifier]
+''' Test Data - Depreciated
+current_data = [ #[Name, Title]
     ["George Martin", "Painting of a Cat"], 
     ["George Martin", "2 Mandalas - Peppermints + Snails in the Garden"],
     ["George Martin", "Painting of a Train"],
@@ -114,40 +118,53 @@ current_data = [ #[Name, Title, Name_Modifier, Title Modifier]
     ["San Jean Von Eisenvon the Second", "456"],
     ["San Jean Von Eisenvon", "789"],
     ["San Jean Von Eisenvon", "022"]]
+'''
 
-def text_format(text, width): #, font):
-    #text_size = draw.multiline_textsize(text, font=font, spacing=6)
+def read_data(data_file):
+    raw_data = []
+    with open(DATA_PATH, 'r') as f:
+        data_reader = csv.reader(f)
+        for row in data_reader:
+            raw_data.append(row)
 
-    centered_text = textwrap()
-    '''
-    if text_size >= text_box_size:
-        number_of_lines = 2
-    else:
-        number_of_lines = 1
-    '''
-    
-    #text_center(text, text_box_size, font, number_of_lines)
+    table_sep = raw_data.index([])
+    raw_data = [raw_data[:table_sep], raw_data[table_sep+1:]]
+    return raw_data
 
-def text_center(text, text_box_size, font, number_of_lines):
-    text_size = draw.multiline_textsize(text, font=font, spacing=6)
-    if text_size >= text_box_size:
-        pass
-    else:
-        pass
+def unpack_data(raw_data):
+    data = []
+    for table in raw_data:
+        current_table = []
+        for row in table:
+            author = row[0]
+            artwork = row[1:]
+            for art in artwork:
+                current_table.append([author, art])
+        data.append(current_table)
+    return data
 
-    formatted_text = text
-    
-    xy_adjustment = (0,0)
-
-    return formatted_text, xy_adjustment
-
+def generate_sheets(data):
+    sheets = []
+    for table in data:
+        len_table = len(table)
+        i = 0
+        while len_table >= 10:
+            sheets.append(table[i:i+10])
+            i += 10
+            len_table -= 10
+        if len_table > 0:
+            sheets.append(table[i:])
+            sheets[len(sheets)-1].extend([['','']] * (10 - len_table))
+    return sheets
 
 def write_text(data_list):
-    image = blank_image
     pad = 100
     for i, coord in enumerate(cards_coordinates):
         current_coord = (coord[0] + TITLE_TRANSLATION[0], coord[1] + TITLE_TRANSLATION[1])
-        text = '"' + data_list[i][1] + '"'
+        if data_list[i][1] != '':
+            text = '"' + data_list[i][1] + '"'
+        else:
+            text = data_list[i][1]
         text_wrapped = textwrap.wrap(text, width=22)
 
         delta_h = 0
@@ -159,14 +176,12 @@ def write_text(data_list):
                 delta_h += 50
             
             draw.text((current_coord[0] + ((title_textbox[2][0] - w) // 2), current_coord[1] + delta_h), text, fill="black", font=font8)
-            #draw.multiline_text((current_coord), '"' + data_list[i][1] + '"', fill="black",
-            #                    font=font10, spacing=6, align="center" )
             delta_h += pad
     
         
         current_coord = (coord[0] + NAME_TRANSLATION[0], coord[1] + NAME_TRANSLATION[1])
         text = data_list[i][0]
-        text_wrapped = textwrap.wrap(text, width=15)
+        text_wrapped = textwrap.wrap(text, width=13)
         
         delta_h = 0
         delta_h += (len(text_wrapped) - 3) * -50
@@ -175,20 +190,17 @@ def write_text(data_list):
             w, h = draw.textsize(text, font = font8)
 
             draw.text((current_coord[0] + ((name_textbox[2][0] - w) // 2), current_coord[1] + delta_h), text, fill="black", font=font8)
-            delta_h += pad       
-        '''
-        draw.multiline_text((current_coord), data_list[i][0], fill="black",
-                            font=font8, spacing=6, align="center" )'''
+            delta_h += pad
+    
+            
+        
 
+raw_data = read_data(DATA_PATH)
+data = unpack_data(raw_data)
+sheets = generate_sheets(data)
 
-#TO REMOVE, Locates name and title textboxes
-'''        
-draw.line(title_textbox[0:2],
-            fill="black", width=5)
-draw.line(name_textbox[0:2],
-            fill="black", width=5)
-'''
-
-write_text(current_data)
-image.save("Test.png")
+for i, sheet in enumerate(sheets):
+    image.paste(blank_image)
+    write_text(sheet)
+    image.save(".//Generated Sheets//Sheet_" + str(i+1) + ".png")
 
