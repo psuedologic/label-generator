@@ -2,10 +2,6 @@ from PIL import Image, ImageDraw, ImageFont
 import textwrap
 import csv
 
-''' TODO:
-Add csv support / automated pdf production
-   
-'''
 #Configuration Settings
 PIXELS_PER_INCH = 300
 PAPER_SIZE = (8.5, 11)
