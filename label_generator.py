@@ -6,107 +6,108 @@ import json #test to-remove
 #Configuration Settings
 
 ''' Depreciated - Use JSON file for config settings
-PIXELS_PER_INCH = 300
-PAPER_SIZE = (8.5, 11)
-ROWS = 5
-COLUMNS = 2
+config["pixelsPerInch"] = 300
+config["paperSize"] = (8.5, 11)
+config["rows"] = 5
+config["columns"] = 2
 
-BORDER_WIDTH = 40
-LOGO_MARGIN = 40
-TOP_MARGIN = .5
-SIDE_MARGIN = .75
-TEXT_MARGIN = 30
+config["borderWidth"] = 40
+config["logoMargin"] = 40
+config["topMargin"] = .5
+config["sideMargin"] = .75
+config["textMargin"] = 30
 
-IMAGE_BACKGROUND = "white"
-logo = Image.open("fair_logo.jpg")
-logo = logo.resize((369, 273), Image.LANCZOS) #328, 243
-RESOURCE_PATH = "..//resource//"
-FONT_PATH = RESOURCE_PATH + "times.ttf"
-DATA_PATH = RESOURCE_PATH + "fair-data.csv"
+config["backgroundColor"] = "white"
+logo = Image.open(config["logoPath"])
+logo = logo.resize(config["logoSize"], Image.LANCZOS) #328, 243
+config["resourcePath"] = "..//resource//"
+config["fontPath"] = config["resourcePath"] + config["font"]
+config["data"] = config["resourcePath"] + config["defaultData"]
 '''
 
 #Derived Settings
 def derive_config(config):
     pass
-''' Convert from json config file
-IMAGE_SIZE = (int(PAPER_SIZE[0] * PIXELS_PER_INCH),
-              int(PAPER_SIZE[1] * PIXELS_PER_INCH))
-MARGIN_SIZE = 1 * PIXELS_PER_INCH
-TOP_MARGIN = int(TOP_MARGIN * PIXELS_PER_INCH)
-SIDE_MARGIN = int(SIDE_MARGIN * PIXELS_PER_INCH)
+'''         Convert from json config file
+    config["imageSize"] = (int(config["paperSize"][0] * config["pixelsPerInch"]),
+                           int(config["paperSize"][1] * config["pixelsPerInch"]))
+    config["marginSize"] = 1 * config["pixelsPerInch"]
+    config["topMargin"] = int(config["topMargin"] * config["pixelsPerInch"])
+    config["sideMargin"] = int(config["sideMargin"] * config["pixelsPerInch"])
 
-X_MIN = SIDE_MARGIN + (LOGO_MARGIN * 3 // 4) # added logo margin to calibrate to my printer
-X_MAX = IMAGE_SIZE[0] - SIDE_MARGIN - (LOGO_MARGIN * 3 // 4)
-Y_MIN = TOP_MARGIN + LOGO_MARGIN
-Y_MAX = IMAGE_SIZE[1] - TOP_MARGIN - LOGO_MARGIN
+    config["xMin"] = config["sideMargin"] + (config["logoMargin"] * 3 // 4) # added logo margin to calibrate to my printer
+    config["xMax"] = config["imageSize"][0] - config["sideMargin"] - (config["logoMargin"] * 3 // 4)
+    config["yMin"] = config["topMargin"] + config["logoMargin"]
+    config["yMax"] = config["imageSize"][1] - config["topMargin"] - config["logoMargin"]
 
-PIXELS_IN_ROW = ((Y_MAX - Y_MIN) // ROWS)
-CARD_SIZE = (((X_MAX - X_MIN) // 2), PIXELS_IN_ROW)
+    config["pixelsInRow"] = ((config["yMax"] - config["yMin"]) // config["rows"])
+    config["cardSize"] = (((config["xMax"] - config["xMin"]) // 2), config["pixelsInRow"])
 
-font10 = ImageFont.truetype(FONT_PATH, 100)
-font8 = ImageFont.truetype(FONT_PATH, 100)
+    config["font10"] = ImageFont.truetype(config["fontPath"], 100)
+    config["font8"] = ImageFont.truetype(config["fontPath"], 100)
 
-image = Image.new("RGB", IMAGE_SIZE, IMAGE_BACKGROUND)
-draw = ImageDraw.Draw(image, "RGB")
+    image = Image.new("RGB", config["imageSize"], config["backgroundColor"])
+    draw = ImageDraw.Draw(image, "RGB")
 
-LOGO_TRANSLATION = (LOGO_MARGIN, CARD_SIZE[1] - logo.size[1] - LOGO_MARGIN)
+    config["logoTranslation"] = (config["logoMargin"], config["cardSize"][1] - logo.size[1] - config["logoMargin"])
 
-# Format        [(UPPER, LEFT), (LOWER, RIGHT), (SIZE)]
-title_textbox = [(TEXT_MARGIN + X_MIN, TEXT_MARGIN + Y_MIN),
-                 (CARD_SIZE[0] - TEXT_MARGIN + X_MIN, CARD_SIZE[1] - logo.size[1] - LOGO_MARGIN * 2 - TEXT_MARGIN + Y_MIN),
-                 ()]
-title_textbox[2] = (title_textbox[1][0] - title_textbox[0][0], title_textbox[1][1] - title_textbox[0][1])
-name_textbox = [(logo.size[0] + LOGO_MARGIN * 3 + X_MIN, CARD_SIZE[1] - logo.size[1] - LOGO_MARGIN * 2 + TEXT_MARGIN + Y_MIN),
-                (CARD_SIZE[0] - TEXT_MARGIN * 2 + X_MIN, CARD_SIZE[1] - TEXT_MARGIN * 2 + Y_MIN),
-                ()]
-name_textbox[2] = (name_textbox[1][0] - name_textbox[0][0], name_textbox[1][1] - name_textbox[0][1])
+    # Format        [(UPPER, LEFT), (LOWER, RIGHT), (SIZE)]
+    config["titleTextbox"] = [(config["textMargin"] + config["xMin"], config["textMargin"] + config["yMin"]),
+                     (config["cardSize"][0] - config["textMargin"] + config["xMin"], config["cardSize"][1] - logo.size[1] - config["logoMargin"] * 2 - config["textMargin"] + config["yMin"]),
+                     ()]
+    config["titleTextbox"][2] = (config["titleTextbox"][1][0] - config["titleTextbox"][0][0], config["titleTextbox"][1][1] - config["titleTextbox"][0][1])
+    config["nameTextbox"] = [(logo.size[0] + config["logoMargin"] * 3 + config["xMin"], config["cardSize"][1] - logo.size[1] - config["logoMargin"] * 2 + config["textMargin"] + config["yMin"]),
+                    (config["cardSize"][0] - config["textMargin"] * 2 + config["xMin"], config["cardSize"][1] - config["textMargin"] * 2 + config["yMin"]),
+                    ()]
+    config["nameTextbox"][2] = (config["nameTextbox"][1][0] - config["nameTextbox"][0][0], config["nameTextbox"][1][1] - config["nameTextbox"][0][1])
 '''    
 #TO REMOVE - DEPRECIATED
-TITLE_TRANSLATION = (TEXT_MARGIN, TEXT_MARGIN)
-NAME_TRANSLATION = (logo.size[0] + LOGO_MARGIN * 2, CARD_SIZE[1] - TEXT_MARGIN * 2 - logo.size[1] )
+config["titleTranslation"] = (config["textMargin"], config["textMargin"])
+config["nameTranslation"] = (logo.size[0] + config["logoMargin"] * 2, config["cardSize"][1] - config["textMargin"] * 2 - logo.size[1] )
 
 #Generates a list containing the upper left coordinate of each card.
 def generate_card_coordinates():
     cards_coordinates = []
-    current_coord = (X_MIN, Y_MIN)
+    current_coord = (config["xMin"], config["yMin"])
     cards_coordinates.append(current_coord)
-    for row in range(ROWS):
-        current_coord = (current_coord[0] + CARD_SIZE[0], current_coord[1])
+    for row in range(config["rows"]):
+        current_coord = (current_coord[0] + config["cardSize"][0], current_coord[1])
         cards_coordinates.append(current_coord)
         
-        current_coord = (current_coord[0] - CARD_SIZE[0],
-                         current_coord[1] + CARD_SIZE[1])
+        current_coord = (current_coord[0] - config["cardSize"][0],
+                         current_coord[1] + config["cardSize"][1])
         cards_coordinates.append(current_coord)
     cards_coordinates.pop(10)
 
 def draw_static():
     #Draws the Vertical Lines
-    draw.line([(X_MIN, Y_MIN),
-               (X_MIN, Y_MAX)],
-               fill="red", width=BORDER_WIDTH)
-    draw.line([(X_MAX, Y_MIN),
-               (X_MAX, Y_MAX)],
-               fill="red", width=BORDER_WIDTH)
-    draw.line([(((X_MIN + X_MAX) // 2), Y_MIN),
-               (((X_MIN + X_MAX) // 2), Y_MAX)],
-                 fill="red", width=BORDER_WIDTH)
+    draw.line([(config["xMin"], config["yMin"]),
+               (config["xMin"], config["yMax"])],
+               fill="red", width=config["borderWidth"])
+    draw.line([(config["xMax"], config["yMin"]),
+               (config["xMax"], config["yMax"])],
+               fill="red", width=config["borderWidth"])
+    draw.line([(((config["xMin"] + config["xMax"]) // 2), config["yMin"]),
+               (((config["xMin"] + config["xMax"]) // 2), config["yMax"])],
+                 fill="red", width=config["borderWidth"])
 
     #Draws the Horizontal Lines
-    draw.line([(X_MIN - BORDER_WIDTH // 2, Y_MIN),
-               (X_MAX + BORDER_WIDTH // 2, Y_MIN)],
-               fill="blue", width=BORDER_WIDTH)
-    draw.line([(X_MIN - BORDER_WIDTH // 2, Y_MAX),
-               (X_MAX + BORDER_WIDTH // 2, Y_MAX)],
-               fill="blue", width=BORDER_WIDTH)
-    current_row = Y_MIN
-    for row in range(ROWS):
-        current_row += PIXELS_IN_ROW
-        draw.line([X_MIN - BORDER_WIDTH // 2, current_row, X_MAX + BORDER_WIDTH // 2, current_row],
-                    fill="blue", width=BORDER_WIDTH)
+    draw.line([(config["xMin"] - config["borderWidth"] // 2, config["yMin"]),
+               (config["xMax"] + config["borderWidth"] // 2, config["yMin"])],
+               fill="blue", width=config["borderWidth"])
+    draw.line([(config["xMin"] - config["borderWidth"] // 2, config["yMax"]),
+    draw.line([(config["xMin"] - config["borderWidth"] // 2, config["yMax"]),
+               (config["xMax"] + config["borderWidth"] // 2, config["yMax"])],
+               fill="blue", width=config["borderWidth"])
+    current_row = config["yMin"]
+    for row in range(config["rows"]):
+        current_row += config["pixelsInRow"]
+        draw.line([config["xMin"] - config["borderWidth"] // 2, current_row, config["xMax"] + config["borderWidth"] // 2, current_row],
+                    fill="blue", width=config["borderWidth"])
 
     #Draws the Logo
     for coord in cards_coordinates:
-        current_coord = (coord[0] + LOGO_TRANSLATION[0], coord[1] + LOGO_TRANSLATION[1])
+        current_coord = (coord[0] + config["logoTranslation"][0], coord[1] + config["logoTranslation"][1])
         image.paste(logo, box=(current_coord))
 
     blank_image = image.copy()
@@ -127,7 +128,7 @@ current_data = [ #[Name, Title]
 
 def read_data(data_file):
     raw_data = []
-    with open(DATA_PATH, 'r') as f:
+    with open(config["data"], 'r') as f:
         data_reader = csv.reader(f)
         for row in data_reader:
             raw_data.append(row)
@@ -165,7 +166,7 @@ def generate_sheets(data):
 def write_text(data_list):
     pad = 100
     for i, coord in enumerate(cards_coordinates):
-        current_coord = (coord[0] + TITLE_TRANSLATION[0], coord[1] + TITLE_TRANSLATION[1])
+        current_coord = (coord[0] + config["titleTranslation"][0], coord[1] + config["titleTranslation"][1])
         if data_list[i][1] != '':
             text = '"' + data_list[i][1] + '"'
         else:
@@ -175,16 +176,16 @@ def write_text(data_list):
         delta_h = 0
         
         for text in text_wrapped:
-            w, h = draw.textsize(text, font = font10)
+            w, h = draw.textsize(text, font = config["font10"])
             
             if len(text_wrapped) == 1:
                 delta_h += 50
             
-            draw.text((current_coord[0] + ((title_textbox[2][0] - w) // 2), current_coord[1] + delta_h), text, fill="black", font=font8)
+            draw.text((current_coord[0] + ((config["titleTextbox"][2][0] - w) // 2), current_coord[1] + delta_h), text, fill="black", font=config["font8"])
             delta_h += pad
     
         
-        current_coord = (coord[0] + NAME_TRANSLATION[0], coord[1] + NAME_TRANSLATION[1])
+        current_coord = (coord[0] + config["nameTranslation"][0], coord[1] + config["nameTranslation"][1])
         text = data_list[i][0]
         text_wrapped = textwrap.wrap(text, width=13)
         
@@ -192,15 +193,15 @@ def write_text(data_list):
         delta_h += (len(text_wrapped) - 3) * -50
         
         for text in text_wrapped:
-            w, h = draw.textsize(text, font = font8)
+            w, h = draw.textsize(text, font = config["font8"])
 
-            draw.text((current_coord[0] + ((name_textbox[2][0] - w) // 2), current_coord[1] + delta_h), text, fill="black", font=font8)
+            draw.text((current_coord[0] + ((config["nameTextbox"][2][0] - w) // 2), current_coord[1] + delta_h), text, fill="black", font=config["font8"])
             delta_h += pad
     
 generate_card_coordinates()
 draw_static()
     
-raw_data = read_data(DATA_PATH)
+raw_data = read_data(config["data"])
 data = unpack_data(raw_data)
 sheets = generate_sheets(data)
 
