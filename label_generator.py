@@ -1,7 +1,6 @@
 from PIL import Image, ImageDraw, ImageFont
 import textwrap
 import csv
-import json #test to-remove
 
 #Configuration Settings
 
@@ -22,13 +21,17 @@ logo = Image.open(config["logoPath"])
 logo = logo.resize(config["logoSize"], Image.LANCZOS) #328, 243
 config["resourcePath"] = "..//resource//"
 config["fontPath"] = config["resourcePath"] + config["font"]
-config["data"] = config["resourcePath"] + config["defaultData"]
+config["dataPath"] = config["resourcePath"] + config["defaultData"]
 '''
 
 #Derived Settings
 def derive_config(config):
-    pass
-'''         Convert from json config file
+    logo = Image.open(config["logoPath"])
+    logo = logo.resize(config["logoSize"], Image.LANCZOS) #328, 243
+    config["resourcePath"] = "..//resource//"
+    config["fontPath"] = config["resourcePath"] + config["font"]
+    config["dataPath"] = config["resourcePath"] + config["defaultData"]
+    
     config["imageSize"] = (int(config["paperSize"][0] * config["pixelsPerInch"]),
                            int(config["paperSize"][1] * config["pixelsPerInch"]))
     config["marginSize"] = 1 * config["pixelsPerInch"]
@@ -60,10 +63,12 @@ def derive_config(config):
                     (config["cardSize"][0] - config["textMargin"] * 2 + config["xMin"], config["cardSize"][1] - config["textMargin"] * 2 + config["yMin"]),
                     ()]
     config["nameTextbox"][2] = (config["nameTextbox"][1][0] - config["nameTextbox"][0][0], config["nameTextbox"][1][1] - config["nameTextbox"][0][1])
-'''    
-#TO REMOVE - DEPRECIATED
-config["titleTranslation"] = (config["textMargin"], config["textMargin"])
-config["nameTranslation"] = (logo.size[0] + config["logoMargin"] * 2, config["cardSize"][1] - config["textMargin"] * 2 - logo.size[1] )
+        
+    #TO REMOVE - DEPRECIATED
+    config["titleTranslation"] = (config["textMargin"], config["textMargin"])
+    config["nameTranslation"] = (logo.size[0] + config["logoMargin"] * 2, config["cardSize"][1] - config["textMargin"] * 2 - logo.size[1] )
+    
+    return config
 
 #Generates a list containing the upper left coordinate of each card.
 def generate_card_coordinates():
@@ -95,11 +100,12 @@ def draw_static():
     draw.line([(config["xMin"] - config["borderWidth"] // 2, config["yMin"]),
                (config["xMax"] + config["borderWidth"] // 2, config["yMin"])],
                fill="blue", width=config["borderWidth"])
-    draw.line([(config["xMin"] - config["borderWidth"] // 2, config["yMax"]),
-    draw.line([(config["xMin"] - config["borderWidth"] // 2, config["yMax"]),
-               (config["xMax"] + config["borderWidth"] // 2, config["yMax"])],
+    draw.line([(config["xMin"] - config["borderWidth"] // 2, Y_MAX),
+               (config["xMax"] + config["borderWidth"] // 2, Y_MAX)],
                fill="blue", width=config["borderWidth"])
+    
     current_row = config["yMin"]
+    
     for row in range(config["rows"]):
         current_row += config["pixelsInRow"]
         draw.line([config["xMin"] - config["borderWidth"] // 2, current_row, config["xMax"] + config["borderWidth"] // 2, current_row],
@@ -128,7 +134,7 @@ current_data = [ #[Name, Title]
 
 def read_data(data_file):
     raw_data = []
-    with open(config["data"], 'r') as f:
+    with open(config["dataPath"], 'r') as f:
         data_reader = csv.reader(f)
         for row in data_reader:
             raw_data.append(row)
@@ -197,16 +203,17 @@ def write_text(data_list):
 
             draw.text((current_coord[0] + ((config["nameTextbox"][2][0] - w) // 2), current_coord[1] + delta_h), text, fill="black", font=config["font8"])
             delta_h += pad
-    
-generate_card_coordinates()
-draw_static()
-    
-raw_data = read_data(config["data"])
-data = unpack_data(raw_data)
-sheets = generate_sheets(data)
+            
+def main():    
+    generate_card_coordinates()
+    draw_static()
+        
+    raw_data = read_data(config["dataPath"])
+    data = unpack_data(raw_data)
+    sheets = generate_sheets(data)
 
-for i, sheet in enumerate(sheets):
-    image.paste(blank_image)
-    write_text(sheet)
-    image.save(".//Generated Sheets//Sheet_" + str(i+1) + ".png")
+    for i, sheet in enumerate(sheets):
+        image.paste(blank_image)
+        write_text(sheet)
+        image.save(".//Generated Sheets//Sheet_" + str(i+1) + ".png")
 
