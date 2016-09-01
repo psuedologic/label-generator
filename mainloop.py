@@ -1,6 +1,7 @@
+import label_generator
 import gui
 import saveload
 
 gui.main()
 config = saveload.load_config("default.json")
-label_generator(config)
+config = label_generator.derive_config(config)
