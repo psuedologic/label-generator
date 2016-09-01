@@ -1,8 +1,11 @@
 from PIL import Image, ImageDraw, ImageFont
 import textwrap
 import csv
+import json #test to-remove
 
 #Configuration Settings
+
+''' Depreciated - Use JSON file for config settings
 PIXELS_PER_INCH = 300
 PAPER_SIZE = (8.5, 11)
 ROWS = 5
@@ -20,8 +23,12 @@ logo = logo.resize((369, 273), Image.LANCZOS) #328, 243
 RESOURCE_PATH = "..//resource//"
 FONT_PATH = RESOURCE_PATH + "times.ttf"
 DATA_PATH = RESOURCE_PATH + "fair-data.csv"
+'''
 
 #Derived Settings
+def derive_config(config):
+    pass
+''' Convert from json config file
 IMAGE_SIZE = (int(PAPER_SIZE[0] * PIXELS_PER_INCH),
               int(PAPER_SIZE[1] * PIXELS_PER_INCH))
 MARGIN_SIZE = 1 * PIXELS_PER_INCH
@@ -43,6 +50,7 @@ image = Image.new("RGB", IMAGE_SIZE, IMAGE_BACKGROUND)
 draw = ImageDraw.Draw(image, "RGB")
 
 LOGO_TRANSLATION = (LOGO_MARGIN, CARD_SIZE[1] - logo.size[1] - LOGO_MARGIN)
+
 # Format        [(UPPER, LEFT), (LOWER, RIGHT), (SIZE)]
 title_textbox = [(TEXT_MARGIN + X_MIN, TEXT_MARGIN + Y_MIN),
                  (CARD_SIZE[0] - TEXT_MARGIN + X_MIN, CARD_SIZE[1] - logo.size[1] - LOGO_MARGIN * 2 - TEXT_MARGIN + Y_MIN),
@@ -52,55 +60,56 @@ name_textbox = [(logo.size[0] + LOGO_MARGIN * 3 + X_MIN, CARD_SIZE[1] - logo.siz
                 (CARD_SIZE[0] - TEXT_MARGIN * 2 + X_MIN, CARD_SIZE[1] - TEXT_MARGIN * 2 + Y_MIN),
                 ()]
 name_textbox[2] = (name_textbox[1][0] - name_textbox[0][0], name_textbox[1][1] - name_textbox[0][1])
-    
+'''    
 #TO REMOVE - DEPRECIATED
 TITLE_TRANSLATION = (TEXT_MARGIN, TEXT_MARGIN)
 NAME_TRANSLATION = (logo.size[0] + LOGO_MARGIN * 2, CARD_SIZE[1] - TEXT_MARGIN * 2 - logo.size[1] )
 
 #Generates a list containing the upper left coordinate of each card.
-cards_coordinates = []
-current_coord = (X_MIN, Y_MIN)
-cards_coordinates.append(current_coord)
-for row in range(ROWS):
-    current_coord = (current_coord[0] + CARD_SIZE[0], current_coord[1])
+def generate_card_coordinates():
+    cards_coordinates = []
+    current_coord = (X_MIN, Y_MIN)
     cards_coordinates.append(current_coord)
-    
-    current_coord = (current_coord[0] - CARD_SIZE[0],
-                     current_coord[1] + CARD_SIZE[1])
-    cards_coordinates.append(current_coord)
-cards_coordinates.pop(10)
+    for row in range(ROWS):
+        current_coord = (current_coord[0] + CARD_SIZE[0], current_coord[1])
+        cards_coordinates.append(current_coord)
+        
+        current_coord = (current_coord[0] - CARD_SIZE[0],
+                         current_coord[1] + CARD_SIZE[1])
+        cards_coordinates.append(current_coord)
+    cards_coordinates.pop(10)
 
+def draw_static():
+    #Draws the Vertical Lines
+    draw.line([(X_MIN, Y_MIN),
+               (X_MIN, Y_MAX)],
+               fill="red", width=BORDER_WIDTH)
+    draw.line([(X_MAX, Y_MIN),
+               (X_MAX, Y_MAX)],
+               fill="red", width=BORDER_WIDTH)
+    draw.line([(((X_MIN + X_MAX) // 2), Y_MIN),
+               (((X_MIN + X_MAX) // 2), Y_MAX)],
+                 fill="red", width=BORDER_WIDTH)
 
-#Draws the Vertical Lines
-draw.line([(X_MIN, Y_MIN),
-           (X_MIN, Y_MAX)],
-           fill="red", width=BORDER_WIDTH)
-draw.line([(X_MAX, Y_MIN),
-           (X_MAX, Y_MAX)],
-           fill="red", width=BORDER_WIDTH)
-draw.line([(((X_MIN + X_MAX) // 2), Y_MIN),
-           (((X_MIN + X_MAX) // 2), Y_MAX)],
-             fill="red", width=BORDER_WIDTH)
+    #Draws the Horizontal Lines
+    draw.line([(X_MIN - BORDER_WIDTH // 2, Y_MIN),
+               (X_MAX + BORDER_WIDTH // 2, Y_MIN)],
+               fill="blue", width=BORDER_WIDTH)
+    draw.line([(X_MIN - BORDER_WIDTH // 2, Y_MAX),
+               (X_MAX + BORDER_WIDTH // 2, Y_MAX)],
+               fill="blue", width=BORDER_WIDTH)
+    current_row = Y_MIN
+    for row in range(ROWS):
+        current_row += PIXELS_IN_ROW
+        draw.line([X_MIN - BORDER_WIDTH // 2, current_row, X_MAX + BORDER_WIDTH // 2, current_row],
+                    fill="blue", width=BORDER_WIDTH)
 
-#Draws the Horizontal Lines
-draw.line([(X_MIN - BORDER_WIDTH // 2, Y_MIN),
-           (X_MAX + BORDER_WIDTH // 2, Y_MIN)],
-           fill="blue", width=BORDER_WIDTH)
-draw.line([(X_MIN - BORDER_WIDTH // 2, Y_MAX),
-           (X_MAX + BORDER_WIDTH // 2, Y_MAX)],
-           fill="blue", width=BORDER_WIDTH)
-current_row = Y_MIN
-for row in range(ROWS):
-    current_row += PIXELS_IN_ROW
-    draw.line([X_MIN - BORDER_WIDTH // 2, current_row, X_MAX + BORDER_WIDTH // 2, current_row],
-                fill="blue", width=BORDER_WIDTH)
+    #Draws the Logo
+    for coord in cards_coordinates:
+        current_coord = (coord[0] + LOGO_TRANSLATION[0], coord[1] + LOGO_TRANSLATION[1])
+        image.paste(logo, box=(current_coord))
 
-#Draws the Logo
-for coord in cards_coordinates:
-    current_coord = (coord[0] + LOGO_TRANSLATION[0], coord[1] + LOGO_TRANSLATION[1])
-    image.paste(logo, box=(current_coord))
-
-blank_image = image.copy()
+    blank_image = image.copy()
 
 ''' Test Data - Depreciated
 current_data = [ #[Name, Title]
@@ -188,9 +197,9 @@ def write_text(data_list):
             draw.text((current_coord[0] + ((name_textbox[2][0] - w) // 2), current_coord[1] + delta_h), text, fill="black", font=font8)
             delta_h += pad
     
-            
-        
-
+generate_card_coordinates()
+draw_static()
+    
 raw_data = read_data(DATA_PATH)
 data = unpack_data(raw_data)
 sheets = generate_sheets(data)

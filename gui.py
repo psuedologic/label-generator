@@ -29,7 +29,7 @@ class Application(Frame):
         menubar = Menu(self.parent)
         self.parent.config(menu=menubar)
         
-        fileMenu = Menu(menubar)       
+        fileMenu = Menu(menubar, tearoff=0)       
         
         fileMenu.add_command(label="New", underline=0)
         fileMenu.add_command(label="Open", underline=0)
@@ -46,20 +46,21 @@ class Application(Frame):
         fileMenu.add_command(label="Exit", underline=0, command=self.onExit)
         menubar.add_cascade(label="File", underline=0, menu=fileMenu)
         
-        editMenu = Menu(menubar)
+        editMenu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Edit", underline=0, menu=editMenu)
         
-        settingsMenu = Menu(menubar)
+        settingsMenu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Options", underline=0, menu=settingsMenu)
         
-        runMenu = Menu(menubar)
+        runMenu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Run", underline=0, menu=runMenu)
         
         helpMenu = Menu(menubar)
         menubar.add_cascade(label="Help", underline=0, menu=helpMenu)
         
+        image = Image.new("RGB", (8500, 11000), "white")
         
-        
+
     def onExit(self):
         self.quit()
 
