@@ -34,13 +34,7 @@ class Application(Frame):
         fileMenu.add_command(label="New", underline=0)
         fileMenu.add_command(label="Open", underline=0)
         fileMenu.add_command(label="Save", underline=0)
-        '''
-        submenu = Menu(fileMenu)
-        submenu.add_command(label="New feed")
-        submenu.add_command(label="Bookmarks")
-        submenu.add_command(label="Mail")
-        fileMenu.add_cascade(label='Import', menu=submenu, underline=0)
-        '''
+
         fileMenu.add_separator()
         
         fileMenu.add_command(label="Exit", underline=0, command=self.onExit)
@@ -60,6 +54,22 @@ class Application(Frame):
         
         image = Image.new("RGB", (8500, 11000), "white")
         
+    def draw_image(image):
+        self.mainframe = Frame(self, padding="3 3 12 12")
+        self.mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
+        self.mainframe.columnconfigure(0, weight=1)
+        self.mainframe.rowconfigure(0, weight=1)
+        
+        Label(self.mainframe, text="test").grid(column=2, row=2)
+        
+        self.current_image = image
+        
+    
+        self.viewWindow = Canvas(self, bg="white")
+        self.viewWindow.pack(side=TOP, fill=BOTH, expand=True)
+
+        self.viewWindow.image = image
+        self.viewWindow.create_image(0, 0, anchor=CENTER, image=image)
 
     def onExit(self):
         self.quit()
@@ -70,6 +80,7 @@ def main():
     root.geometry("800x1000")
     
     app = Application(root)
+    #app.draw_image()
     root.mainloop()  
     
 if __name__ == '__main__':

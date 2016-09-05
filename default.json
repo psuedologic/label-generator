@@ -5,13 +5,9 @@
   "columns": 2,
   "borderWidth": 40,
   "logoMargin": 40,
-  "topMargin": 0.5,
-  "sideMargin": 0.75,
+  "verticalMargin": 0.5,
+  "horizontalMargin": 0.75,
   "textMargin": 30,
   "backgroundColor": "white",
-  "logoPath": "fair_logo.jpg",
-  "logoSize": [369, 273],
-  "resourcePath": "..//resource//",
-  "font": "times.ttf",
-  "defaultData": "fair-data.csv"
+  "resourcePath": "..//resource//"
 }
