@@ -1,0 +1,13 @@
+{
+  "pixelsPerInch": 300,
+  "paperSize": [8.5, 11],
+  "rows": 5,
+  "columns": 2,
+  "borderWidth": 40,
+  "logoMargin": 40,
+  "verticalMargin": 0.5,
+  "horizontalMargin": 0.75,
+  "textMargin": 30,
+  "backgroundColor": "white",
+  "resourcePath": "..//resource//"
+}
