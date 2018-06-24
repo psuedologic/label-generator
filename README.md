@@ -2,14 +2,11 @@
 
 ## Synopsis
 
-A package for creating printable labels. 
+A package for creating printable labels. Currently limited to a predefined FXML layout for a local fair's art tags.
 
 ## Motivation
 
-Written too ease the burden of volunteer's who were needing to create these by hand.
+Current software solutions that come with pre cut label paper is buggy, prone to crashing, and doesn't support many pages of entries. This application is intended to solve these problems.
 
 ## Installation 
-
-* Install Python 3.x
-* Install Pillow
-* Place desired fonts in 'resource' folder
+Build src folder, tested with java sdk 1.8
