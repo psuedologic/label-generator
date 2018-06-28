@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URL;
 import javafx.application.Application;
 import javafx.beans.Observable;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -53,11 +54,12 @@ public class FairTag extends Application {
     @Override
     public void start(Stage s) throws Exception {
         stage = s;
+        //FXMLLoader fxmlLoader = new FXMLLoader();
         
-        Parent root = FXMLLoader.load(getClass().getResource("FairTag.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/fxml/FairTag.fxml"));
         
-        //File f = new File("style.css");
-
+        //Parent root = fxmlLoader.getRoot();
+        
         Scene scene = new Scene(root);
         //scene.getStylesheets().clear();
         //scene.getStylesheets().add("file:///" + f.getAbsolutePath().replace("\\", "/"));

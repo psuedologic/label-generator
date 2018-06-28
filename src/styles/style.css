@@ -1,0 +1,46 @@
+.gridpane {
+    -fx-border-width: 3px;
+    -fx-border-color: blue;
+    -fx-border-style: solid;
+    -fx-border-top: solid red;
+    -fx-alignment: center;
+    -fx-background-fill: red blue ;
+    -fx-background-insets: 0, 1 ;
+}
+.gridBorder {
+    -fx-border-color: red blue;
+    -fx-border-width: 12;
+    -fx-border-insets: -4;
+}
+.image {
+    float: left;
+}
+.text-area {
+    background-color: white;
+    
+    /* Experimental */
+    -fx-background-insets: 0;
+    -fx-background-color: transparent, white, transparent, white;
+    -fx-background-radius: 0, 0, 0, 0;
+
+    -fx-box-border: none;
+    -fx-focus-color: -fx-control-inner-background;
+    -fx-faint-focus-color: -fx-control-inner-background;
+    -fx-text-box-border: -fx-control-inner-background;
+    -fx-border-width: -1;
+}
+/* Experimental */
+.text-area .content {
+    -fx-background-color: transparent, white, transparent, white;
+}
+/* Experimental */
+.text-area:focused .content {
+    -fx-background-color: transparent, white, transparent, white;
+}
+
+.text-area .scroll-bar:vertical:disabled {
+    -fx-opacity: 0;
+}
+.text-area *.text {
+    -fx-text-alignment: center;
+}

@@ -1,6 +1,2 @@
-* Add a GUI
-* Add saving/loading for:
-    x) Data
-    x) Configuration
-* Add current view that updates as settings are changed.
-* Export file to pdf.
+Desired Features
+* Tool for editing and Creating Layouts

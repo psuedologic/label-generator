@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package fairtags;
 
 import java.net.URL;
@@ -27,18 +22,14 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.input.ZoomEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
-import javafx.stage.FileChooser;
 import javafx.stage.Modality;
-import javafx.stage.Window;
 
 /**
- *
- * @author Talon
+  * @author Talon
  */
 public class FairTagController implements Initializable {
     
@@ -48,7 +39,7 @@ public class FairTagController implements Initializable {
     @FXML TextField fontSize;
     @FXML Line border1;
     @FXML Line border2;
-    private SimpleIntegerProperty currentSelection = new SimpleIntegerProperty(-1);
+    private final SimpleIntegerProperty currentSelection = new SimpleIntegerProperty(-1);
     private AnchorPane currentPane;
     private TextArea textAreaName;
     private Label labelName;
@@ -84,14 +75,12 @@ public class FairTagController implements Initializable {
         
         labelName.setVisible(false);
         textAreaName.setVisible(true);
+
         fontSize.setText("" + Math.round(labelName.getFont().getSize()));
-        //currentlyEditing = "name";
     }
     
     @FXML
     private void changeFontSize(ActionEvent event) {
-        //System.out.println(event.getSource());
-        //if (currentSelection.get() != -1 ) {
         TextField fontField = ((TextField) event.getSource());
         int fontSize = 0;
         
@@ -104,20 +93,10 @@ public class FairTagController implements Initializable {
             fontField.setText("" + textAreaName.getFont().getSize());
         }
         
-        //int fontSize =  Integer.parseInt(((TextField) event.getSource()).getText());
-        if (currentlyEditing == "name") {
-            //Set font to new fontSize
-        }
-        //}
     }
     
     @FXML
-    private void clearTextSelection() {//MouseEvent event) {
-        //System.out.println("Clear selection");
-        //if (currentSelection.get() != -1) {
-            //AnchorPane pane = (AnchorPane) gridPane.getChildrenUnmodifiable().get(currentSelection.get());
-            //TextArea text = ((TextArea) (currentPane.getChildren().get(1)));
-            //Label label = (Label) pane.getChildren().get(2);
+    private void clearTextSelection() {
         if (getCurrentSelection() != -1) {
             textAreaName.setVisible(false);
             labelName.setVisible(true);
@@ -147,7 +126,6 @@ public class FairTagController implements Initializable {
     private void setCurrentSelection(Event event, int offset) {
         AnchorPane pane = (AnchorPane) ((Label) event.getSource()).getParent();
         currentSelection.set(pane.getParent().getChildrenUnmodifiable().indexOf(pane) + offset);
-        //if offset
     }
     private int getCurrentSelection() {
         return currentSelection.get();
@@ -195,8 +173,6 @@ public class FairTagController implements Initializable {
     
     private void clearStage() {
         gridPane.setVisible(false);
-        //border1.setVisible(false);
-        //border2.setVisible(false);
     }
     @FXML 
     private void loadNewDocument(ActionEvent event) {
@@ -225,7 +201,6 @@ public class FairTagController implements Initializable {
         if (FairTag.getCurrentPageValue() > 1) {
             FairTag.setCurrentPage(FairTag.getCurrentPageValue() - 1);
             loadPage(FairTag.getCurrentPageValue());
-            //FairTag.setTitle();
         }
     }
     @FXML
@@ -260,8 +235,6 @@ public class FairTagController implements Initializable {
         gridPane.setVisible(true);
     }
     private void loadPage(int index) {
-        //FairTag.setCurrentPage(index);
-        //FairTag.setTitle();
         index--;
         
         for (int i = 0; i < 10; i++) {
@@ -357,9 +330,6 @@ public class FairTagController implements Initializable {
             selectFields();
         });
         SimpleIntegerProperty currentPage = FairTag.getCurrentPage();
-        currentPage.addListener((Observable o) -> {
-            //System.out.println("Current Page: " + currentPage.get());
-        });
         
         FairTag.getStageSize().addListener((Observable o) -> {
            double pageSizeX = (FairTag.getPPI() * FairTag.getPageSize()[0]);
