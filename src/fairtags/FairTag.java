@@ -35,7 +35,6 @@ import javax.imageio.ImageIO;
  */
 public class FairTag extends Application {
     
-   
     //Default value
     private static final double DEFAULT_PPI = 72;
     private static final double[] DEFAULT_PAGE_SIZE = {8.5, 11};
