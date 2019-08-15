@@ -22,6 +22,8 @@ import javafx.print.Printer;
 import javafx.print.PrinterJob;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
+
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -48,9 +50,11 @@ public class FairTagController implements Initializable {
     @FXML TextField fontSize;
     @FXML Line border1;
     @FXML Line border2;
+    @FXML CheckBox ageSelector;
     private SimpleIntegerProperty currentSelection = new SimpleIntegerProperty(-1);
     private AnchorPane currentPane;
     private TextArea textAreaName;
+    private Boolean isAdult;
     private Label labelName;
     private TextArea textAreaArtist;
     private Label labelArtist;
@@ -154,6 +158,9 @@ public class FairTagController implements Initializable {
     }
     private void selectFields() {
         int selectedField = currentSelection.get();
+        System.out.println(selectedField);
+        
+        //System.out.println(textAreaArtist.selected);
         if (selectedField == -1) {
             currentPane = null;
             textAreaName = null;
@@ -161,18 +168,72 @@ public class FairTagController implements Initializable {
             fontSize.setEditable(false);
         }
         else if(selectedField < 10) {
-            currentPane = (AnchorPane) gridPane.getChildrenUnmodifiable().get(currentSelection.get());
+            currentPane = (AnchorPane) gridPane.getChildrenUnmodifiable()
+                                       .get(selectedField);
             textAreaName = ((TextArea) (currentPane.getChildren().get(1)));
             labelName = (Label) currentPane.getChildren().get(2);
             fontSize.setEditable(true);
         }
         else if (selectedField < 20) {
-            currentPane = (AnchorPane) gridPane.getChildrenUnmodifiable().get(currentSelection.get() - 10);
+            currentPane = (AnchorPane) gridPane.getChildrenUnmodifiable()
+                                       .get(selectedField - 10);
             textAreaName = ((TextArea) (currentPane.getChildren().get(3)));
             labelName = (Label) currentPane.getChildren().get(4);
             fontSize.setEditable(true);
         }
     }
+    @FXML
+    private void renumberTagsCaller() {
+        renumberTags(false);
+    }
+    @FXML
+    private void renumberTags(Boolean checkForExistingValue) {
+        updateIsAdult(false);
+        Integer paintingIndex = (FairTag.getCurrentPageValue() - 1) * 10;
+        
+        String prefix;
+        if (checkForExistingValue) {
+            isAdult = FairTag.getPainting(paintingIndex).getIsAdult();
+        }
+        prefix = isAdult ? "A": "Y";
+        
+        for (int i = 0; i < 10; i++) {
+            Painting painting = FairTag.getPainting(i + paintingIndex);
+            painting.setIsAdult(isAdult);
+            ageSelector.selectedProperty().set(isAdult);
+                                               
+            currentPane = (AnchorPane) gridPane.getChildrenUnmodifiable()
+                                       .get(i);
+            Label idLabel = (Label) currentPane.getChildren().get(5);
+            String id = idLabel.getText();
+            id = prefix + id.substring(1);
+//            if (isAdult) {
+//                id = "A" + id;
+//            } else {
+//                id = "Y" + id;
+//            }
+            idLabel.setText(id);
+        }
+        
+    }
+    private void updateIsAdult(Boolean loadFromDisk) {
+        Integer index = (FairTag.getCurrentPageValue() * 10) - 1;
+        
+//        Painting currentPainting = FairTag.getPainting((i + (FairTag.getCurrentPageValue() - 1) * 10));
+//        currentPainting.setIsAdult(isAdult);
+        if (loadFromDisk) {
+            isAdult = FairTag.getPainting(index).getIsAdult();
+        } else {
+            isAdult = ageSelector.selectedProperty().get();
+            for (int i = 0; i < 10; i++) {
+//            currentPane = (AnchorPane) gridPane.getChildrenUnmodifiable().get(i);
+//            Painting currentPainting = FairTag.getPainting((i + (FairTag.getCurrentPageValue() - 1) * 10));
+//            currentPainting.setIsAdult(isAdult);
+            }
+        }
+        System.out.println(isAdult);
+    }
+            
     @FXML
     private void closeDocument() {
         if (FairTag.getTotalPagesValue() != 0) {
@@ -195,27 +256,40 @@ public class FairTagController implements Initializable {
     
     private void clearStage() {
         gridPane.setVisible(false);
-        //border1.setVisible(false);
-        //border2.setVisible(false);
     }
     @FXML 
     private void loadNewDocument(ActionEvent event) {
         if (FairTag.getCurrentPageValue() == 0) {
             gridPane.setVisible(true);
-            FairTag.addBlankPage();
+            FairTag.addBlankPage(true);
+            updateIsAdult(false);
+            renumberTags(false);
+            //FairTag.setPageNumbers(gridPane, FairTag.getCurrentPageValue(), isAdult);
             loadPage(1);
         }
     }
     @FXML
     private void loadNextPage(ActionEvent event) {
         clearTextSelection();
+        // Switch to an Existing Page
         if (FairTag.getCurrentPageValue() < FairTag.getTotalPagesValue()
                 && FairTag.getCurrentPageValue() != 0) {
             FairTag.setCurrentPage(FairTag.getCurrentPageValue() + 1);
+            
+            updateIsAdult(false);
+            FairTag.setPageNumbers(gridPane);
+            
+            renumberTags(true);
+            
             loadPage(FairTag.getCurrentPageValue());
         }
+        // Switch to a new Page
         else if (FairTag.getCurrentPageValue() != 0) {
-            FairTag.addBlankPage();
+            updateIsAdult(false);
+            FairTag.addBlankPage(isAdult);
+            FairTag.setPageNumbers(gridPane);
+            updateIsAdult(true);
+            renumberTags(false);
             loadPage( FairTag.getCurrentPageValue());
         }
     }
@@ -225,7 +299,9 @@ public class FairTagController implements Initializable {
         if (FairTag.getCurrentPageValue() > 1) {
             FairTag.setCurrentPage(FairTag.getCurrentPageValue() - 1);
             loadPage(FairTag.getCurrentPageValue());
-            //FairTag.setTitle();
+            FairTag.setPageNumbers(gridPane);
+            updateIsAdult(false);
+            renumberTags(true);
         }
     }
     @FXML
@@ -257,11 +333,10 @@ public class FairTagController implements Initializable {
     private void loadDocument(ActionEvent event) {
         FairTag.loadFile();
         loadPage(1);
+        renumberTags(true);
         gridPane.setVisible(true);
     }
     private void loadPage(int index) {
-        //FairTag.setCurrentPage(index);
-        //FairTag.setTitle();
         index--;
         
         for (int i = 0; i < 10; i++) {
@@ -283,7 +358,10 @@ public class FairTagController implements Initializable {
             name = (Label) currentPane.getChildren().get(4);
             name.setText(painting.getArtist());
             name.setFont(Font.font ("Arial", painting.getArtistFontSize()));
+            
+            Label number = (Label) currentPane.getChildren().get(5);
         }
+        
     }
     @FXML
     private void print() {

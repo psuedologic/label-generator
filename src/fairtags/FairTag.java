@@ -22,6 +22,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.print.PrinterJob;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -40,7 +43,7 @@ public class FairTag extends Application {
     private static final double[] DEFAULT_PAGE_SIZE = {8.5, 11};
     private static final int[] GRID = {2, 5};
     private static final int[] TILE_SIZE = {4, 2};
-    private static final double[] INITIAL_PAGE_SIZE = {700, 900};
+    private static final double[] INITIAL_PAGE_SIZE = {800, 1000};
     
     private static ObservableList<Painting> paintings = FXCollections.observableArrayList();
     private static SimpleDoubleProperty PPI = new SimpleDoubleProperty( DEFAULT_PPI );
@@ -102,7 +105,6 @@ public class FairTag extends Application {
                 StringBuilder sb = new StringBuilder();
                 
                 for (Painting painting : paintings) {
-                    
                     sb.append(painting.getName());
                     sb.append("†");
                     sb.append(painting.getArtist());
@@ -110,6 +112,8 @@ public class FairTag extends Application {
                     sb.append(painting.getNameFontSize());
                     sb.append("†");
                     sb.append(painting.getArtistFontSize());
+                    sb.append("†");
+                    sb.append(painting.getIsAdult());
                     sb.append("†");
                     sb.append("\r\n");
                 }
@@ -145,7 +149,8 @@ public class FairTag extends Application {
                     String[] line = nextLine.split("†");
                     
                     paintings.add(new Painting(line[0], line[1], 
-                            Double.parseDouble(line[2]), Double.parseDouble(line[3])));
+                            Double.parseDouble(line[2]), Double.parseDouble(line[3]),
+                            Boolean.parseBoolean(line[4])));
                 }
                 reader.close();
             }
@@ -156,13 +161,30 @@ public class FairTag extends Application {
             setCurrentPage(1);
         }
     }
-    public static void addBlankPage() {
+    public static void addBlankPage(boolean isAdult) {
+        Integer lastID = (getTotalPagesValue() - 10) * 10;
         totalPages.set(getTotalPagesValue() + 1);
-        
+                
         for (int i = 0; i < GRID[0] * GRID[1]; i++) {
-            paintings.add(new Painting());
+            paintings.add(new Painting(isAdult));
         }
         setCurrentPage(totalPages.get());
+    }
+    public static void setPageNumbers(GridPane gridPane) {
+        Integer lastID = (currentPage.get() * 10) - 9;
+                
+        for (int i = 0; i < GRID[0] * GRID[1]; i++) {
+            AnchorPane currentPane = (AnchorPane) gridPane.getChildrenUnmodifiable().get(i);
+            Integer currentID = lastID + i;
+            Label label = (Label) currentPane.getChildren().get(5);
+            String prefix = isAdult();
+            label.setText(prefix + String.format("%03d", currentID));
+        }
+    }
+    public static String isAdult() {
+        Painting painting = paintings.get( (currentPage.get() * 10) - 10);
+        
+        return painting.getIsAdult() ? "A" : "Y";
     }
     public static void deletePage() {
         int pages = getTotalPagesValue();
